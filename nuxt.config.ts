@@ -17,6 +17,5 @@ export default defineNuxtConfig({
                 class: 'n-reset'
             }
         }
-    },
-    modules: ['@nuxt/test-utils'],
+    }
 })

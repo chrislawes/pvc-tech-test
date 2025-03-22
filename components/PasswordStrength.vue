@@ -11,7 +11,10 @@ const completeSectionsCount = computed((): number => passwordStrength().filter(r
 </script>
 
 <template>
-    <div class="password-strength">
+    <div
+        data-testid="password-strength-indicator"
+        class="password-strength"
+    >
         <div
             v-for="(item, index) in indicatorSectionsCount"
             :key="index"

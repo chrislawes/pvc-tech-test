@@ -6,7 +6,11 @@ import '@provetcloud/web-components/lib/button'
 import '@provetcloud/web-components/lib/stack'
 import '@provetcloud/web-components/lib/tooltip'
 
+import { useRouter } from 'vue-router'
+import { register } from '@/services/api'
 import { registerSchema, type RegisterSchema, type RegisterErrorsSchema } from '@/schemas/register'
+
+const router = useRouter()
 
 const formData = reactive<RegisterSchema>({
     email: '',
@@ -22,17 +26,49 @@ const formErrors = reactive<RegisterErrorsSchema>({
 const showPassword = ref<boolean>(false)
 const isSubmitting = ref<boolean>(false)
 
+const hasErrors = computed(() => {
+    return Object.values(formErrors).some(error => error.length > 0)
+})
+
+/**
+ * Reset Errors
+ * Reset all errors (in formErrors) or a specific field (in formErrors[key])
+ * @param [key] - The field to reset the errors for
+ */
 const resetErrors = (key: keyof RegisterErrorsSchema | null = null): void => {
     if (key) {
         formErrors[key] = []
     } else {
         Object.keys(formErrors).forEach(key => {
-            formErrors[key as keyof typeof formErrors] = []
+            if (key in formErrors) {
+                formErrors[key as keyof typeof formErrors] = []
+            }
         })
     }
 }
 
-const handleSubmit = (): void => {
+/**
+ * Append Errors
+ * Append errors to the formErrors object.
+ * @param [errors] - The errors to append
+ */
+const appendErrors = (errors: Record<string, string[] | { _errors: string[] }> = {}) => {
+    Object.keys(errors).forEach(key => {
+        if (key in formErrors) {
+            const error = errors[key as keyof typeof formErrors]
+            if (error && '_errors' in error) {
+                formErrors[key as keyof typeof formErrors] = error._errors as string[]
+            }
+        }
+    })
+}
+
+/**
+ * Handle the submit event for the form.
+ */
+const handleSubmit = async (): Promise<void> => {
+
+    if (isSubmitting.value) return
 
     const result = registerSchema.safeParse(formData)
 
@@ -40,20 +76,17 @@ const handleSubmit = (): void => {
 
     if (result.error) {
 
-        const formatted = result.error.format()
-
-        Object.keys(formatted).forEach(field => {
-            
-            const fieldErrors = formatted[field as keyof typeof formatted]
-
-            if (fieldErrors && '_errors' in fieldErrors) {
-                formErrors[field as keyof typeof formErrors] = fieldErrors._errors;
-            }
-        })
+        const formattedErrors = result.error.format()
+        
+        appendErrors(formattedErrors)
 
     } else {
-        console.log('submit')
+        
         isSubmitting.value = true
+
+        await register(formData)
+        await router.push('/welcome')
+
     }
 }
 </script>
@@ -64,7 +97,10 @@ const handleSubmit = (): void => {
         <h1 class="n-margin-be-s">Register</h1>
         <p class="n-margin-b-l n-font-size-m">Discover the complete cloud-based practice management solution for the modern veterinary practice.</p>
 
-        <form @submit.prevent="handleSubmit">
+        <form
+            @submit.prevent="handleSubmit"
+            :class="{ 'invalid-form': hasErrors }"
+        >
             <provet-stack direction="vertical" gap="l">
 
                 <provet-input
@@ -74,6 +110,7 @@ const handleSubmit = (): void => {
                     label="Email"
                     type="email"
                     :error="formErrors.email ? formErrors.email[0] : undefined"
+                    :disabled="isSubmitting"
                     :value="formData.email"
                     @input="
                         formData.email = ($event.target as HTMLInputElement).value;
@@ -89,6 +126,7 @@ const handleSubmit = (): void => {
                     :type="showPassword ? 'text' : 'password'"
                     :error="formErrors.password ? formErrors.password[0] : undefined"
                     :value="formData.password"
+                    :disabled="isSubmitting"
                     @input="
                         formData.password = ($event.target as HTMLInputElement).value;
                         resetErrors('password');
@@ -102,12 +140,7 @@ const handleSubmit = (): void => {
                         @click="showPassword = !showPassword"
                     >
                         <provet-icon
-                            v-if="showPassword"
-                            name="interface-edit-on"
-                        />
-                        <provet-icon
-                            v-else
-                            name="interface-edit-off"
+                            :name="showPassword ? 'interface-edit-on' : 'interface-edit-off'"
                         />
                     </provet-button>
                 </provet-input>
@@ -121,14 +154,15 @@ const handleSubmit = (): void => {
                 <provet-checkbox
                     label="Updates and announcements"
                     hint="Receive product updates and new feature announcements to your inbox, unsubscribe anytime."
+                    :disabled="isSubmitting"
                     :checked="formData.notificationOptIn"
                     @change="formData.notificationOptIn = ($event.target as HTMLInputElement).checked"
                 />
 
                 <provet-button
                     expand
-                    :loading="isSubmitting"
                     variant="primary"
+                    :loading="isSubmitting"
                 >
                     Register
                 </provet-button>

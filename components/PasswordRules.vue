@@ -16,15 +16,8 @@ const props = defineProps<{
             <provet-stack direction="horizontal" gap="xs">
                 <div class="password-rules__icon">
                     <provet-icon
-                        v-if="!item.isValid(props.input)"
-                        name="interface-close-small"
-                        color="var(--n-color-text-weaker)"
-                        size="xs"
-                    />
-                    <provet-icon
-                        v-if="item.isValid(props.input)"
-                        name="interface-checked-small"
-                        color="var(--n-color-status-success)"
+                        :name="item.isValid(props.input) ? 'interface-checked-small' : 'interface-close-small'"
+                        :color="item.isValid(props.input) ? 'var(--n-color-status-success)' : 'var(--n-color-text-weaker)'"
                         size="s"
                     />
                 </div>
