@@ -31,6 +31,27 @@
     align-items: center;
 }
 
+/* Wouldn't normally overwrite utility classes like this, couldn't find responsive helpers in the library */
+.n-grid-2 {
+    --n-grid-columns: 1;
+}
+
+@media only screen and (min-width: 760px) {
+    .n-grid-2 {
+        --n-grid-columns: 2;
+    }
+}
+
+.default-layout__aside {
+    display: none;
+}
+
+@media only screen and (min-width: 760px) {
+    .default-layout__aside {
+        display: block;
+    }
+}
+
 .default-layout__aside img {
     position: absolute;
     top: 50%;

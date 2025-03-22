@@ -1,27 +1,29 @@
-# Requirements
+# 👨‍💻 Tech test
 
-1. Create a client-side only rendered application using either:
-   - Nuxt 3 (preferred)
-   - Vue 3 (if no Nuxt 3 experience)
+### 🚀 Registration page
 
-2. Create a sign-up form with the following fields:
-   - Email (required)
-   - Password (required)
+A Nuxt 3 SPA registration page that allows new users to sign up with their email and create a secure password.
 
-3. Form validation:
-   - Show error messages if required fields are empty
-   - Implement password strength validation (as shown in existing components)
+### 🛠️ Built using
 
-4. Password field features:
-   - Option to toggle password visibility
+- Vue / Nuxt 3
+- Zod validation
+- Playwright
+- Vitest
 
-5. Additional options:
-   - Checkbox for users to opt-in to product updates and announcements
+### 🏃‍♂️ Run locally
 
-6. User flow:
-   - After successful sign-up, redirect to a success page
+```shell
+npm i
+npm run dev
+```
 
-7. UI components:
-   - Utilize existing password strength indicator
-   - Implement password rules validation
+### 🧪 Testing
 
+```shell
+npm run test:e2e
+```
+
+```shell
+npm run test:unit
+```

@@ -15,13 +15,17 @@ const props = defineProps<{
         >
             <provet-stack direction="horizontal" gap="xs">
                 <div class="password-rules__icon">
+
                     <provet-icon
-                        :name="item.isValid(props.input) ? 'interface-checked-small' : 'interface-close-small'"
-                        :color="item.isValid(props.input) ? 'var(--n-color-status-success)' : 'var(--n-color-text-weaker)'"
+                        :name="(isValid = item.isValid(props.input)) ? 'interface-checked-small' : 'interface-close-small'"
+                        :color="isValid ? 'var(--n-color-status-success)' : 'var(--n-color-text-weaker)'"
                         size="s"
                     />
+
                 </div>
-                <span class="n-font-size-m" :class="{ 'n-color-text-weaker': !item.isValid(props.input) }">{{ item.label }}</span>
+                <span class="n-font-size-m" :class="{ 'n-color-text-weaker': !isValid }">
+                    {{ item.label }}
+                </span>
             </provet-stack>
         </li>
     </ul>

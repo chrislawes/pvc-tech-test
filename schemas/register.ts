@@ -28,6 +28,12 @@ export const registerSchema = z.object({
             { 
                 message: 'Password must contain at least one uppercase letter.' 
             }
+        )
+        .regex(
+            registerSettings.PASSWORD_NUMBER_REQUIRED ? /\d/ : /^/, 
+            { 
+                message: 'Password must contain at least one number.' 
+            }
         ),
     notificationOptIn: z.boolean().optional(),
 }).strict()

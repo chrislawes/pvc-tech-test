@@ -26,18 +26,20 @@ const formErrors = reactive<RegisterErrorsSchema>({
 const showPassword = ref<boolean>(false)
 const isSubmitting = ref<boolean>(false)
 
-const hasErrors = computed(() => {
+const hasErrors = computed((): boolean => {
     return Object.values(formErrors).some(error => error.length > 0)
 })
 
 /**
  * Reset Errors
- * Reset all errors (in formErrors) or a specific field (in formErrors[key])
- * @param [key] - The field to reset the errors for
+ * Reset all errors (in formErrors), or a by a specific field (in formErrors[key])
+ * @param {string} [key] - The field to reset the errors for, or blank for all
  */
 const resetErrors = (key: keyof RegisterErrorsSchema | null = null): void => {
     if (key) {
-        formErrors[key] = []
+        if (key in formErrors) {
+            formErrors[key as keyof typeof formErrors] = []
+        }
     } else {
         Object.keys(formErrors).forEach(key => {
             if (key in formErrors) {
@@ -49,8 +51,8 @@ const resetErrors = (key: keyof RegisterErrorsSchema | null = null): void => {
 
 /**
  * Append Errors
- * Append errors to the formErrors object.
- * @param [errors] - The errors to append
+ * Append errors to the formErrors object
+ * @param {Object} [errors] - The errors to append
  */
 const appendErrors = (errors: Record<string, string[] | { _errors: string[] }> = {}) => {
     Object.keys(errors).forEach(key => {
@@ -64,19 +66,20 @@ const appendErrors = (errors: Record<string, string[] | { _errors: string[] }> =
 }
 
 /**
- * Handle the submit event for the form.
+ * Handle the submit event for the form
+ * Checks validation, mocks API call, and redirects
  */
 const handleSubmit = async (): Promise<void> => {
 
     if (isSubmitting.value) return
 
-    const result = registerSchema.safeParse(formData)
+    const validationStatus = registerSchema.safeParse(formData)
 
     resetErrors()
 
-    if (result.error) {
+    if (validationStatus.error) {
 
-        const formattedErrors = result.error.format()
+        const formattedErrors = validationStatus.error.format()
         
         appendErrors(formattedErrors)
 
@@ -139,9 +142,7 @@ const handleSubmit = async (): Promise<void> => {
                         aria-describedby="password-tooltip"
                         @click="showPassword = !showPassword"
                     >
-                        <provet-icon
-                            :name="showPassword ? 'interface-edit-on' : 'interface-edit-off'"
-                        />
+                        <provet-icon :name="showPassword ? 'interface-edit-on' : 'interface-edit-off'" />
                     </provet-button>
                 </provet-input>
 
@@ -153,7 +154,7 @@ const handleSubmit = async (): Promise<void> => {
 
                 <provet-checkbox
                     label="Updates and announcements"
-                    hint="Receive product updates and new feature announcements to your inbox, unsubscribe anytime."
+                    hint="Receive product updates and new feature announcements to your inbox, unsubscribe at anytime."
                     :disabled="isSubmitting"
                     :checked="formData.notificationOptIn"
                     @change="formData.notificationOptIn = ($event.target as HTMLInputElement).checked"
