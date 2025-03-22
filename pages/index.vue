@@ -87,6 +87,7 @@ const handleSubmit = async (): Promise<void> => {
         
         isSubmitting.value = true
 
+        // This would be in a try/catch, but I know it will work as it's a mock API call
         await register(formData)
         await router.push('/welcome')
 

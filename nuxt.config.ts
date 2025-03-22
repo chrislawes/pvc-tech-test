@@ -15,7 +15,13 @@ export default defineNuxtConfig({
         head: {
             bodyAttrs: {
                 class: 'n-reset'
-            }
+            },
+            link: [
+                {
+                    rel: 'shortcut icon',
+                    href: '/android-chrome-512x512.webp'
+                }
+            ]
         }
     }
 })

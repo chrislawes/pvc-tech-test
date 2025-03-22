@@ -1,4 +1,4 @@
-# 👨‍💻 Tech test
+> 👨‍💻 Tech test
 
 ### 🚀 Registration page
 
