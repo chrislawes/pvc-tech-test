@@ -10,7 +10,9 @@ export const registerSchema = z.object({
             message: 'Invalid email address, please enter a valid email.'
         }),
     password: z
-        .string({ message: 'Password is required.' })
+        .string({
+            message: 'Password is required.'
+        })
         .min(
             registerSettings.PASSWORD_MIN_LENGTH, 
             {
@@ -37,11 +39,3 @@ export const registerSchema = z.object({
         ),
     notificationOptIn: z.boolean().optional(),
 }).strict()
-
-export const registerErrorsSchema = z.object({
-    email: z.array(z.string()).optional(),
-    password: z.array(z.string()).optional()
-}).strict()
-
-export type RegisterSchema = z.infer<typeof registerSchema>
-export type RegisterErrorsSchema = z.infer<typeof registerErrorsSchema>

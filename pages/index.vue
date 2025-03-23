@@ -8,62 +8,37 @@ import '@provetcloud/web-components/lib/tooltip'
 
 import { useRouter } from 'vue-router'
 import { register } from '@/services/api'
-import { registerSchema, type RegisterSchema, type RegisterErrorsSchema } from '@/schemas/register'
+import { registerSchema } from '@/schemas/register'
+import { useFormBuilder } from '@/composables/formBuilder.ts'
 
 const router = useRouter()
 
-const formData = reactive<RegisterSchema>({
-    email: '',
-    password: '',
-    notificationOptIn: false
-})
+const {
+    formData,
+    formErrors,
+    buildForm,
+    appendErrors,
+    resetErrors,
+    hasErrors 
+} = useFormBuilder()
 
-const formErrors = reactive<RegisterErrorsSchema>({
-    email: [],
-    password: []
-})
+buildForm([
+    {
+        key: 'email',
+        value: ''
+    },
+    {
+        key: 'password',
+        value: ''
+    },
+    {
+        key: 'notificationOptIn',
+        value: false
+    }
+])
 
 const showPassword = ref<boolean>(false)
 const isSubmitting = ref<boolean>(false)
-
-const hasErrors = computed((): boolean => {
-    return Object.values(formErrors).some(error => error.length > 0)
-})
-
-/**
- * Reset Errors
- * Reset all errors (in formErrors), or a by a specific field (in formErrors[key])
- * @param {string} [key] - The field to reset the errors for, or blank for all
- */
-const resetErrors = (key: keyof RegisterErrorsSchema | null = null): void => {
-    if (key) {
-        if (key in formErrors) {
-            formErrors[key as keyof typeof formErrors] = []
-        }
-    } else {
-        Object.keys(formErrors).forEach(key => {
-            if (key in formErrors) {
-                formErrors[key as keyof typeof formErrors] = []
-            }
-        })
-    }
-}
-
-/**
- * Append Errors
- * Append errors to the formErrors object
- * @param {Object} [errors] - The errors to append
- */
-const appendErrors = (errors: Record<string, string[] | { _errors: string[] }> = {}) => {
-    Object.keys(errors).forEach(key => {
-        if (key in formErrors) {
-            const error = errors[key as keyof typeof formErrors]
-            if (error && '_errors' in error) {
-                formErrors[key as keyof typeof formErrors] = error._errors as string[]
-            }
-        }
-    })
-}
 
 /**
  * Handle the submit event for the form
@@ -73,9 +48,9 @@ const handleSubmit = async (): Promise<void> => {
 
     if (isSubmitting.value) return
 
-    const validationStatus = registerSchema.safeParse(formData)
-
     resetErrors()
+
+    const validationStatus = registerSchema.safeParse(formData)
 
     if (validationStatus.error) {
 
@@ -87,7 +62,7 @@ const handleSubmit = async (): Promise<void> => {
         
         isSubmitting.value = true
 
-        // This would be in a try/catch, but I know it will work as it's a mock API call
+        // This would be in a try/catch, but I'm expecting it will work as it's a mock API call
         await register(formData)
         await router.push('/welcome')
 
@@ -117,8 +92,8 @@ const handleSubmit = async (): Promise<void> => {
                     :disabled="isSubmitting"
                     :value="formData.email"
                     @input="
-                        formData.email = ($event.target as HTMLInputElement).value;
                         resetErrors('email');
+                        formData.email = ($event.target as HTMLInputElement).value;
                     "
                 />
                 
@@ -132,8 +107,8 @@ const handleSubmit = async (): Promise<void> => {
                     :value="formData.password"
                     :disabled="isSubmitting"
                     @input="
-                        formData.password = ($event.target as HTMLInputElement).value;
                         resetErrors('password');
+                        formData.password = ($event.target as HTMLInputElement).value;
                     "
                 >
                     <provet-button
@@ -171,5 +146,6 @@ const handleSubmit = async (): Promise<void> => {
 
             </provet-stack>
         </form>
+
     </div>
 </template>
